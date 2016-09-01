@@ -1,0 +1,1 @@
+# kawaseapp_monaca2
