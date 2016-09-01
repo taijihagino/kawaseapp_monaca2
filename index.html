@@ -1,0 +1,94 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <script src="components/loader.js"></script>
+    <script src="http://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <link rel="stylesheet" href="components/loader.css">
+    <link rel="stylesheet" href="css/style.css">
+    <script>
+        ons.bootstrap();
+
+        var b_amount = 0;   // 変換前の通貨額
+        var b_unit = "";    // 変換前の通貨単位
+        var a_unit = "";    // 変換後の通貨単位
+        var e_late = 0;     // APIから取得する為替レート
+        var url = "";       // API呼び出しのURL
+
+        function getExchageRate(beforeCurrency){
+            console.log("変換前の金額は"+(document.getElementById("my-input").value)+beforeCurrency+"だよー");
+
+            // 変換前の金額
+            b_amount = document.getElementById("my-input").value;
+
+            if (beforeCurrency == "usd") {
+                // USDからJPYへ変換
+                // 変換前はUSD
+                b_unit = "ドル";    
+                // 変換後はJPY
+                a_unit = "円";
+                
+            } else if (beforeCurrency == "jpy") {
+                // JPYからUSDへ変換   
+                // 変換前はJPY
+                b_unit = "円";    
+                // 変換後はUSD
+                a_unit = "ドル";
+    
+            }
+            
+            // 為替レート取得APIのURLを設定
+            if (_isDebugger()){
+                console.log("デバッガーから実行");
+                url = "";
+            } else {
+                url = "http://api.aoikujira.com/kawase/json/"+beforeCurrency;
+            }
+
+            // 為替レート取得APIを呼出し
+            $.getJSON(url, parseJson);
+        }
+
+        function parseJson(json) { 
+            console.log("コールバック関数が呼ばれたよー");
+            
+            // 為替レートを取得
+            if(a_unit=="ドル"){
+                // JPYからUSD
+                e_late = json.USD;
+            }else if(a_unit=="円"){
+                // USDからJPY
+                e_late = json.JPY;
+            }else{
+                // 今後対象通貨を増やす場合は適宜追加
+            }
+    
+            console.log("為替レートは"+e_late);
+
+            // 計算の為にFloat型へパース
+            b_amount = parseFloat(b_amount);
+            e_late = parseFloat(e_late);
+    
+            // 変換前の値×取得した為替レート
+            var resaultval = e_late*b_amount;
+    
+            // 結果表示
+            alert(b_amount+b_unit+"は"+resaultval+a_unit);
+        }
+
+        /**************************************************** 
+        * [機能] Monaca Debuggerから実行されているか調べる
+        * [引数] なし
+        * [戻値] True：Monaca Debugger / False：Native App
+        *****************************************************/
+        function _isDebugger(){
+            return (location.hostname != "");
+        }
+    </script>
+</head>
+<body>
+    <ons-navigator var="myNavigator" page="page1.html">
+    </ons-navigator> 
+</body>
+</html>
